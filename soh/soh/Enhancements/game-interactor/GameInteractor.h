@@ -4,7 +4,10 @@
 #define GameInteractor_h
 
 #include "GameInteractionEffect.h"
+#include "GameInteractionEffect.h"
 #include "soh/Enhancements/item-tables/ItemTableTypes.h"
+
+#include <libultraship/libultraship.h>
 
 typedef enum {
     /* 0x00 */ GI_LINK_SIZE_NORMAL,
@@ -87,7 +90,6 @@ uint8_t GameInteractor_SecondCollisionUpdate();
 }
 #endif
 
-
 #ifdef __cplusplus
 
 #include <vector>
@@ -99,12 +101,12 @@ uint8_t GameInteractor_SecondCollisionUpdate();
     }
 
 class GameInteractor {
-public:
+  public:
     static GameInteractor* Instance;
 
     // Gsme State
     class State {
-    public:
+      public:
         static bool NoUIActive;
         static GILinkSize LinkSize;
         static bool InvisibleLinkActive;
@@ -132,11 +134,31 @@ public:
     static GameInteractionEffectQueryResult ApplyEffect(GameInteractionEffectBase* effect);
     static GameInteractionEffectQueryResult RemoveEffect(GameInteractionEffectBase* effect);
 
+    // TEST -----
+    std::string replace(std::string str, const std::string& find, const std::string& replace) {
+        if (str.empty())
+            return str;
+
+        auto fnd = str.find(find);
+        if (fnd == std::string::npos)
+            return str;
+
+        str.replace(fnd, find.size(), replace);
+        return str;
+    }
+    // ---------------
+
     // Game Hooks
-    template <typename H> struct RegisteredGameHooks { inline static std::vector<typename H::fn> functions; };
-    template <typename H> void RegisterGameHook(typename H::fn h) { RegisteredGameHooks<H>::functions.push_back(h); }
+    template <typename H> struct RegisteredGameHooks {
+        inline static std::vector<typename H::fn> functions;
+    };
+    template <typename H> void RegisterGameHook(typename H::fn h) {
+        RegisteredGameHooks<H>::functions.push_back(h);
+    }
     template <typename H, typename... Args> void ExecuteHooks(Args&&... args) {
         for (auto& fn : RegisteredGameHooks<H>::functions) {
+            LUS::Scripting::hooks->Call(replace(typeid(H).name(), "struct GameInteractor::", ""),
+                                        std::forward<Args>(args)...);
             fn(std::forward<Args>(args)...);
         }
     }
@@ -162,12 +184,12 @@ public:
     DEFINE_HOOK(OnSaveFile, void(int32_t fileNum));
     DEFINE_HOOK(OnLoadFile, void(int32_t fileNum));
     DEFINE_HOOK(OnDeleteFile, void(int32_t fileNum));
-    
+
     DEFINE_HOOK(OnDialogMessage, void());
     DEFINE_HOOK(OnPresentTitleCard, void());
     DEFINE_HOOK(OnInterfaceUpdate, void());
     DEFINE_HOOK(OnKaleidoscopeUpdate, void(int16_t inDungeonScene));
-    
+
     DEFINE_HOOK(OnPresentFileSelect, void());
     DEFINE_HOOK(OnUpdateFileSelectSelection, void(uint16_t optionIndex));
     DEFINE_HOOK(OnUpdateFileSelectConfirmationSelection, void(uint16_t optionIndex));
@@ -181,7 +203,7 @@ public:
     DEFINE_HOOK(OnUpdateFileQuestSelection, void(uint8_t questIndex));
     DEFINE_HOOK(OnUpdateFileBossRushOptionSelection, void(uint8_t optionIndex, uint8_t optionValue));
     DEFINE_HOOK(OnUpdateFileNameSelection, void(int16_t charCode));
-    
+
     DEFINE_HOOK(OnSetGameLanguage, void());
 
     // Helpers
@@ -191,7 +213,7 @@ public:
     static bool CanAddOrTakeAmmo(int16_t amount, int16_t item);
 
     class RawAction {
-    public:
+      public:
         static void AddOrRemoveHealthContainers(int16_t amount);
         static void AddOrRemoveMagic(int8_t amount);
         static void HealOrDamagePlayer(int16_t hearts);

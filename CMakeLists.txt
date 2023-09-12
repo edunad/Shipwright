@@ -184,6 +184,11 @@ install(FILES "${CMAKE_SOURCE_DIR}/OTRExporter/CFG/ActorList_OoTMqDbg.txt" DESTI
 install(FILES "${CMAKE_SOURCE_DIR}/OTRExporter/CFG/ObjectList_OoTMqDbg.txt" DESTINATION ./assets/extractor/symbols)
 install(FILES "${CMAKE_SOURCE_DIR}/OTRExporter/CFG/SymbolMap_OoTMqDbg.txt" DESTINATION ./assets/extractor/symbols)
 
+# TODO: FIX ME
+#file(COPY "${CMAKE_SOURCE_DIR}/libultraship/src/modding/lua/" DESTINATION ${CMAKE_BINARY_DIR}/)
+#message(WARNING "${CMAKE_SOURCE_DIR}/libultraship/src/modding/lua/")
+#message(WARNING "AAAAAAAAAAAAAAAAAAAAAAAAAA")
+
 install(DIRECTORY ${CMAKE_BINARY_DIR}/assets
         DESTINATION .
         PATTERN ZAPD.out
